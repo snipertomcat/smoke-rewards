@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd:*)",
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Bash(php artisan:*)",
+      "Bash(npm run:*)",
+      "Bash(grep -E \"\\\\.\\(env|ts|js\\)$\")",
+      "Bash(grep -r \"PORT\\\\|port\" /Users/jesse/Projects/smoke-rewards --include=*.json --include=*.md --include=.env* --include=*.ts --include=*.js --include=*.php)",
+      "Bash(grep -r \"serve\\\\|port\\\\|8000\\\\|3000\" /Users/jesse/Projects/smoke-rewards/backend --include=*.php --include=*.md)"
+    ]
+  }
+}

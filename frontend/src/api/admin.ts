@@ -68,13 +68,33 @@ export interface UpdateTenantData {
   }
 }
 
+// Normalize raw Laravel paginator (top-level fields) into PaginatedResponse shape
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizePage<T>(raw: any): PaginatedResponse<T> {
+  return {
+    data: raw.data ?? [],
+    meta: {
+      current_page: raw.current_page ?? raw.meta?.current_page ?? 1,
+      last_page:    raw.last_page    ?? raw.meta?.last_page    ?? 1,
+      per_page:     raw.per_page     ?? raw.meta?.per_page     ?? 20,
+      total:        raw.total        ?? raw.meta?.total        ?? 0,
+      from:         raw.from         ?? raw.meta?.from         ?? null,
+      to:           raw.to           ?? raw.meta?.to           ?? null,
+    },
+    links: {
+      first: raw.first_page_url ?? raw.links?.first ?? null,
+      last:  raw.last_page_url  ?? raw.links?.last  ?? null,
+      prev:  raw.prev_page_url  ?? raw.links?.prev  ?? null,
+      next:  raw.next_page_url  ?? raw.links?.next  ?? null,
+    },
+  }
+}
+
 export async function listTenants(
   params?: TenantListParams
 ): Promise<PaginatedResponse<TenantWithCounts>> {
-  const response = await apiClient.get<PaginatedResponse<TenantWithCounts>>('/admin/tenants', {
-    params,
-  })
-  return response.data
+  const response = await apiClient.get('/admin/tenants', { params })
+  return normalizePage<TenantWithCounts>(response.data)
 }
 
 export async function createTenant(data: CreateTenantData): Promise<Tenant> {
@@ -105,10 +125,8 @@ export type AdminCustomer = Customer & { tenant: { id: number; name: string } }
 export async function listAllCustomers(
   params?: AdminCustomerListParams
 ): Promise<PaginatedResponse<AdminCustomer>> {
-  const response = await apiClient.get<PaginatedResponse<AdminCustomer>>('/admin/customers', {
-    params,
-  })
-  return response.data
+  const response = await apiClient.get('/admin/customers', { params })
+  return normalizePage<AdminCustomer>(response.data)
 }
 
 export async function deleteCustomer(id: number): Promise<void> {
@@ -124,7 +142,10 @@ export interface AdminUserListParams {
   page?: number
 }
 
-export type AdminUser = User & { tenant: { id: number; name: string } }
+export type AdminUser = User & {
+  tenant: { id: number; name: string } | null
+  created_at: string
+}
 
 export interface CreateUserData {
   tenant_id: number
@@ -137,8 +158,8 @@ export interface CreateUserData {
 export async function listUsers(
   params?: AdminUserListParams
 ): Promise<PaginatedResponse<AdminUser>> {
-  const response = await apiClient.get<PaginatedResponse<AdminUser>>('/admin/users', { params })
-  return response.data
+  const response = await apiClient.get('/admin/users', { params })
+  return normalizePage<AdminUser>(response.data)
 }
 
 export async function createUser(data: CreateUserData): Promise<User> {

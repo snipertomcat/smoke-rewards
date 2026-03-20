@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Search, Plus, Trash2, UserCog } from 'lucide-react'
 import * as adminApi from '../../api/admin'
+import type { AdminUser } from '../../api/admin'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -11,34 +12,27 @@ import Spinner from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
 import Pagination from '../../components/ui/Pagination'
 
-function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+function formatDate(str: string) {
+  return new Date(str).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
   })
 }
 
-// ---- Create User Modal ----
+// ─── Create User Modal ────────────────────────────────────────────────────────
 
-interface CreateUserModalProps {
-  onClose: () => void
-}
-
-function CreateUserModal({ onClose }: CreateUserModalProps) {
+function CreateUserModal({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient()
   const [tenantId, setTenantId] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'admin' | 'staff'>('staff')
-  const [error, setError] = useState<string | null>(null)
+  const [serverError, setServerError] = useState<string | null>(null)
 
   const { data: tenantsData } = useQuery({
-    queryKey: ['admin', 'tenants', 'all'],
+    queryKey: ['admin', 'tenants', 'dropdown'],
     queryFn: () => adminApi.listTenants({ per_page: 100 }),
   })
-
   const tenants = tenantsData?.data ?? []
 
   const mutation = useMutation({
@@ -48,37 +42,29 @@ function CreateUserModal({ onClose }: CreateUserModalProps) {
       onClose()
     },
     onError: (err: unknown) => {
-      const response = (err as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } })?.response
-      const firstError = response?.data?.errors
-        ? Object.values(response.data.errors).flat()[0]
-        : response?.data?.message
-      setError(firstError ?? 'Failed to create user. Please try again.')
+      const resp = (err as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } })?.response
+      const msg = resp?.data?.errors
+        ? Object.values(resp.data.errors).flat()[0]
+        : resp?.data?.message
+      setServerError(msg ?? 'Failed to create user.')
     },
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setError(null)
+    setServerError(null)
     if (!tenantId || !name.trim() || !email.trim() || !password) {
-      setError('All fields are required.')
+      setServerError('All fields are required.')
       return
     }
-    mutation.mutate({
-      tenant_id: parseInt(tenantId),
-      name: name.trim(),
-      email: email.trim(),
-      password,
-      role,
-    })
+    mutation.mutate({ tenant_id: parseInt(tenantId), name: name.trim(), email: email.trim(), password, role })
   }
 
   return (
     <Modal title="New User" onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
-          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
-            {error}
-          </div>
+        {serverError && (
+          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{serverError}</div>
         )}
 
         <div className="flex flex-col gap-1">
@@ -86,47 +72,26 @@ function CreateUserModal({ onClose }: CreateUserModalProps) {
           <select
             value={tenantId}
             onChange={(e) => setTenantId(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             required
           >
             <option value="" disabled>Select a shop...</option>
             {tenants.map((t) => (
-              <option key={t.id} value={String(t.id)}>
-                {t.name}
-              </option>
+              <option key={t.id} value={String(t.id)}>{t.name}</option>
             ))}
           </select>
         </div>
 
-        <Input
-          label="Name *"
-          placeholder="Jane Smith"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <Input
-          label="Email *"
-          type="email"
-          placeholder="jane@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <Input
-          label="Password *"
-          type="password"
-          placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <Input label="Name *" placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input label="Email *" type="email" placeholder="jane@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input label="Password *" type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">Role *</label>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value as 'admin' | 'staff')}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="staff">Staff</option>
             <option value="admin">Admin</option>
@@ -134,64 +99,55 @@ function CreateUserModal({ onClose }: CreateUserModalProps) {
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit" variant="primary" loading={mutation.isPending}>
-            Create User
-          </Button>
+          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="submit" variant="primary" loading={mutation.isPending}>Create User</Button>
         </div>
       </form>
     </Modal>
   )
 }
 
-// ---- Main Page ----
+// ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function AdminUsersPage() {
   const queryClient = useQueryClient()
   const [search, setSearch] = useState('')
   const [debouncedSearch, setDebouncedSearch] = useState('')
-  const [tenantId, setTenantId] = useState<string>('')
+  const [filterTenantId, setFilterTenantId] = useState('')
   const [page, setPage] = useState(1)
-  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showCreate, setShowCreate] = useState(false)
   const perPage = 15
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value)
+  const handleSearch = (val: string) => {
+    setSearch(val)
     setPage(1)
-    clearTimeout((window as unknown as { _adminUserSearchTimeout?: ReturnType<typeof setTimeout> })._adminUserSearchTimeout)
-    ;(window as unknown as { _adminUserSearchTimeout?: ReturnType<typeof setTimeout> })._adminUserSearchTimeout = setTimeout(() => {
-      setDebouncedSearch(value)
-    }, 350)
+    clearTimeout((window as unknown as { _uSearch?: ReturnType<typeof setTimeout> })._uSearch)
+    ;(window as unknown as { _uSearch?: ReturnType<typeof setTimeout> })._uSearch = setTimeout(() => setDebouncedSearch(val), 350)
   }
 
   const { data: tenantsData } = useQuery({
-    queryKey: ['admin', 'tenants', 'all'],
+    queryKey: ['admin', 'tenants', 'dropdown'],
     queryFn: () => adminApi.listTenants({ per_page: 100 }),
   })
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['admin', 'users', { search: debouncedSearch, tenant_id: tenantId, page, per_page: perPage }],
-    queryFn: () =>
-      adminApi.listUsers({
-        search: debouncedSearch || undefined,
-        tenant_id: tenantId ? parseInt(tenantId) : undefined,
-        page,
-        per_page: perPage,
-      }),
+    queryKey: ['admin', 'users', { search: debouncedSearch, tenant_id: filterTenantId, page, perPage }],
+    queryFn: () => adminApi.listUsers({
+      search: debouncedSearch || undefined,
+      tenant_id: filterTenantId ? parseInt(filterTenantId) : undefined,
+      page,
+      per_page: perPage,
+    }),
   })
 
   const deleteMutation = useMutation({
     mutationFn: adminApi.deleteUser,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'users'] }),
   })
 
-  const handleDelete = (id: number, name: string) => {
-    if (window.confirm(`Delete user "${name}"? This action cannot be undone.`)) {
-      deleteMutation.mutate(id)
+  const handleDelete = (user: AdminUser) => {
+    if (window.confirm(`Delete user "${user.name}"? This cannot be undone.`)) {
+      deleteMutation.mutate(user.id)
     }
   }
 
@@ -201,6 +157,7 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Users</h1>
@@ -208,7 +165,7 @@ export default function AdminUsersPage() {
             {meta ? `${new Intl.NumberFormat('en-US').format(meta.total)} total users` : 'All shop users'}
           </p>
         </div>
-        <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+        <Button variant="primary" onClick={() => setShowCreate(true)}>
           <Plus className="h-4 w-4" />
           New User
         </Button>
@@ -216,53 +173,36 @@ export default function AdminUsersPage() {
 
       <Card padding={false}>
         {/* Filters */}
-        <div className="px-4 py-3 border-b border-gray-100 flex gap-3 flex-col sm:flex-row">
+        <div className="px-4 py-3 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <Input
               placeholder="Search by name or email..."
               value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
               icon={<Search className="h-4 w-4" />}
             />
           </div>
-          <div className="sm:w-48">
-            <select
-              value={tenantId}
-              onChange={(e) => {
-                setTenantId(e.target.value)
-                setPage(1)
-              }}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
-            >
-              <option value="">All Shops</option>
-              {tenants.map((t) => (
-                <option key={t.id} value={String(t.id)}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={filterTenantId}
+            onChange={(e) => { setFilterTenantId(e.target.value); setPage(1) }}
+            className="sm:w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            <option value="">All Shops</option>
+            {tenants.map((t) => (
+              <option key={t.id} value={String(t.id)}>{t.name}</option>
+            ))}
+          </select>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center h-48">
-            <Spinner size="lg" />
-          </div>
+          <div className="flex items-center justify-center h-48"><Spinner size="lg" /></div>
         ) : error ? (
           <EmptyState title="Failed to load users" description="Please refresh the page." />
         ) : users.length === 0 ? (
           <EmptyState
             icon={<UserCog className="h-12 w-12" />}
             title="No users found"
-            description={debouncedSearch || tenantId ? 'Try adjusting your filters.' : 'No users created yet.'}
-            action={
-              !debouncedSearch && !tenantId ? (
-                <Button variant="primary" onClick={() => setShowCreateModal(true)}>
-                  <Plus className="h-4 w-4" />
-                  New User
-                </Button>
-              ) : undefined
-            }
+            description={debouncedSearch || filterTenantId ? 'Try adjusting your filters.' : 'No users yet.'}
           />
         ) : (
           <>
@@ -274,7 +214,7 @@ export default function AdminUsersPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop</th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
@@ -286,24 +226,23 @@ export default function AdminUsersPage() {
                         <p className="text-xs text-gray-400">ID #{user.id}</p>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{user.email}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{user.tenant.name}</td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        {user.tenant?.name ?? <span className="text-gray-400">—</span>}
+                      </td>
                       <td className="px-4 py-3">
                         <Badge variant={user.role === 'admin' ? 'blue' : 'gray'}>
                           {user.role}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {(user as unknown as { created_at?: string }).created_at
-                          ? formatDate((user as unknown as { created_at: string }).created_at)
-                          : '—'}
+                      <td className="px-4 py-3 text-sm text-gray-500">
+                        {user.created_at ? formatDate(user.created_at) : '—'}
                       </td>
                       <td className="px-4 py-3 text-right">
                         <Button
-                          variant="ghost"
+                          variant="danger"
                           size="sm"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDelete(user.id, user.name)}
-                          loading={deleteMutation.isPending}
+                          onClick={() => handleDelete(user)}
+                          loading={deleteMutation.isPending && deleteMutation.variables === user.id}
                         >
                           <Trash2 className="h-4 w-4" />
                           Delete
@@ -332,9 +271,7 @@ export default function AdminUsersPage() {
         )}
       </Card>
 
-      {showCreateModal && (
-        <CreateUserModal onClose={() => setShowCreateModal(false)} />
-      )}
+      {showCreate && <CreateUserModal onClose={() => setShowCreate(false)} />}
     </div>
   )
 }

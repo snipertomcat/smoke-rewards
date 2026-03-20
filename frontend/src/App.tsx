@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
+import { useBranding } from './hooks/useBranding'
 import Layout from './components/layout/Layout'
 import AdminLayout from './components/layout/AdminLayout'
 import LoginPage from './pages/LoginPage'
@@ -56,6 +57,7 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   const { user, isLoading } = useAuth()
+  useBranding()
 
   if (isLoading) {
     return (

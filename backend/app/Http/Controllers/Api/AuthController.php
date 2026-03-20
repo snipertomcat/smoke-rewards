@@ -57,6 +57,7 @@ class AuthController extends Controller
                 'id'       => $user->tenant->id,
                 'name'     => $user->tenant->name,
                 'slug'     => $user->tenant->slug,
+                'logo_url' => $user->tenant->logo_url,
                 'settings' => $user->tenant->settings,
             ] : null,
         ];

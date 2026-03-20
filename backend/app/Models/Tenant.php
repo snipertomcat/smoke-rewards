@@ -15,6 +15,7 @@ class Tenant extends Model
         'name',
         'slug',
         'email',
+        'logo_url',
         'is_active',
         'settings',
     ];

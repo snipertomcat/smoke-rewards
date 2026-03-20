@@ -51,7 +51,8 @@ export interface TenantListParams {
 export interface CreateTenantData {
   name: string
   slug: string
-  email?: string
+  email: string
+  password: string
   settings?: {
     points_per_dollar?: number
     min_redemption_points?: number

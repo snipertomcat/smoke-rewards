@@ -33,6 +33,7 @@ function CreateTenantModal({ onClose }: CreateTenantModalProps) {
   const [slug, setSlug] = useState('')
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false)
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [pointsPerDollar, setPointsPerDollar] = useState('1')
   const [minRedemptionPoints, setMinRedemptionPoints] = useState('100')
   const [error, setError] = useState<string | null>(null)
@@ -65,10 +66,19 @@ function CreateTenantModal({ onClose }: CreateTenantModalProps) {
       setError('Name and slug are required.')
       return
     }
+    if (!email.trim()) {
+      setError('Email is required to create the owner account.')
+      return
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.')
+      return
+    }
     mutation.mutate({
       name: name.trim(),
       slug: slug.trim(),
-      email: email.trim() || undefined,
+      email: email.trim(),
+      password,
       settings: {
         points_per_dollar: parseFloat(pointsPerDollar) || 1,
         min_redemption_points: parseInt(minRedemptionPoints) || 100,
@@ -103,11 +113,19 @@ function CreateTenantModal({ onClose }: CreateTenantModalProps) {
         />
 
         <Input
-          label="Email"
+          label="Owner Email *"
           type="email"
-          placeholder="shop@example.com"
+          placeholder="owner@shop.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <Input
+          label="Owner Password *"
+          type="password"
+          placeholder="Min. 8 characters"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
         <div className="grid grid-cols-2 gap-4">

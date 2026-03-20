@@ -25,9 +25,17 @@ export default function Sidebar() {
     <aside className="flex flex-col w-64 min-h-screen bg-gray-900 text-white">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-700">
-        <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-brand-500">
-          <Flame className="h-5 w-5 text-white" />
-        </div>
+        {user?.tenant?.logo_url ? (
+          <img
+            src={user.tenant.logo_url}
+            alt={user.tenant.name}
+            className="h-9 w-9 rounded-lg object-cover shrink-0"
+          />
+        ) : (
+          <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-brand-500 shrink-0">
+            <Flame className="h-5 w-5 text-white" />
+          </div>
+        )}
         <div>
           <p className="font-bold text-sm leading-tight">Smoke Rewards</p>
           {user?.tenant && (

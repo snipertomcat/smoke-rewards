@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Password;
 
 class AdminTenantController extends Controller
 {
@@ -23,10 +25,11 @@ class AdminTenantController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'slug'     => ['required', 'string', 'max:100', 'unique:tenants,slug', 'alpha_dash'],
-            'email'    => ['nullable', 'email', 'max:255'],
-            'settings' => ['nullable', 'array'],
+            'name'                           => ['required', 'string', 'max:255'],
+            'slug'                           => ['required', 'string', 'max:100', 'unique:tenants,slug', 'alpha_dash'],
+            'email'                          => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password'                       => ['required', Password::min(8)],
+            'settings'                       => ['nullable', 'array'],
             'settings.points_per_dollar'     => ['nullable', 'integer', 'min:1'],
             'settings.min_redemption_points' => ['nullable', 'integer', 'min:1'],
         ]);
@@ -37,7 +40,21 @@ class AdminTenantController extends Controller
             'points_to_dollar_ratio' => 0.20,
         ], $data['settings'] ?? []);
 
-        $tenant = Tenant::create(array_merge($data, ['is_active' => true]));
+        $tenant = Tenant::create([
+            'name'      => $data['name'],
+            'slug'      => $data['slug'],
+            'email'     => $data['email'],
+            'is_active' => true,
+            'settings'  => $data['settings'],
+        ]);
+
+        User::create([
+            'tenant_id' => $tenant->id,
+            'name'      => $data['name'],
+            'email'     => $data['email'],
+            'password'  => $data['password'],
+            'role'      => 'admin',
+        ]);
 
         return response()->json(['data' => $tenant], 201);
     }

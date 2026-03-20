@@ -2,6 +2,7 @@ export interface Tenant {
   id: number
   name: string
   slug: string
+  logo_url?: string | null
   settings?: {
     points_per_dollar?: number
     [key: string]: unknown

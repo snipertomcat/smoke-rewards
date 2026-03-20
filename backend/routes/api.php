@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PointTransactionController;
 use App\Http\Controllers\Api\PurchaseController;
 use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\SettingsController;
+use App\Http\Controllers\Api\TenantLogoController;
 use App\Http\Controllers\Api\StaffController;
 use App\Http\Middleware\EnsureIsAdmin;
 use App\Http\Middleware\EnsureSuperAdmin;
@@ -70,6 +71,10 @@ Route::prefix('v1')->group(function () {
             // Rewards settings (view for all, update for admins only)
             Route::get('settings', [SettingsController::class, 'show']);
             Route::put('settings', [SettingsController::class, 'update'])->middleware(EnsureIsAdmin::class);
+
+            // Logo (admin only)
+            Route::post('tenant/logo', [TenantLogoController::class, 'store'])->middleware(EnsureIsAdmin::class);
+            Route::delete('tenant/logo', [TenantLogoController::class, 'destroy'])->middleware(EnsureIsAdmin::class);
 
             // Store-wide transaction history
             Route::get('transactions', [PointTransactionController::class, 'index']);

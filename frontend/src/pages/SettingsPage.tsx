@@ -1,14 +1,15 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Building2, User, Award, Flame, Save, Info } from 'lucide-react'
+import { Building2, User, Award, Flame, Save, Info, ImagePlus, Trash2 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { apiClient } from '../api/client'
 import Card from '../components/ui/Card'
 import Badge from '../components/ui/Badge'
 import Input from '../components/ui/Input'
 import Button from '../components/ui/Button'
+import Spinner from '../components/ui/Spinner'
 
 // ─── schema ──────────────────────────────────────────────────────────────────
 
@@ -155,6 +156,130 @@ function RewardsConfigForm() {
   )
 }
 
+// ─── LogoUpload ───────────────────────────────────────────────────────────────
+
+function LogoUpload() {
+  const { user, refreshUser } = useAuth()
+  const fileRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [removing, setRemoving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+
+  const currentLogo = user?.tenant?.logo_url ?? null
+
+  const handleFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file.')
+      return
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError('Image must be under 2 MB.')
+      return
+    }
+    setError(null)
+    setPreview(URL.createObjectURL(file))
+    setUploading(true)
+    try {
+      const form = new FormData()
+      form.append('logo', file)
+      await apiClient.post('/tenant/logo', form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      await refreshUser()
+    } catch {
+      setError('Upload failed. Please try again.')
+      setPreview(null)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleRemove = async () => {
+    setError(null)
+    setRemoving(true)
+    try {
+      await apiClient.delete('/tenant/logo')
+      setPreview(null)
+      await refreshUser()
+    } catch {
+      setError('Failed to remove logo.')
+    } finally {
+      setRemoving(false)
+    }
+  }
+
+  const displayed = preview ?? currentLogo
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4">
+        {/* Preview */}
+        <div className="h-20 w-20 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 shrink-0 overflow-hidden">
+          {displayed ? (
+            <img src={displayed} alt="Logo preview" className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex flex-col items-center gap-1">
+              <Flame className="h-8 w-8 text-brand-400" />
+              <span className="text-xs text-gray-400">No logo</span>
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-sm text-gray-600">
+            Upload a PNG, JPG, GIF, or WebP — max 2 MB.<br />
+            Displays in the top-left of the sidebar.
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              loading={uploading}
+              onClick={() => fileRef.current?.click()}
+            >
+              <ImagePlus className="h-4 w-4" />
+              {currentLogo ? 'Replace Logo' : 'Upload Logo'}
+            </Button>
+            {(currentLogo || preview) && (
+              <Button
+                variant="danger"
+                size="sm"
+                loading={removing}
+                onClick={handleRemove}
+              >
+                <Trash2 className="h-4 w-4" />
+                Remove
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {uploading && (
+        <div className="flex items-center gap-2 text-sm text-gray-500">
+          <Spinner size="sm" />
+          Uploading…
+        </div>
+      )}
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) handleFile(file)
+          e.target.value = ''
+        }}
+      />
+    </div>
+  )
+}
+
 // ─── SettingsPage ─────────────────────────────────────────────────────────────
 
 export default function SettingsPage() {
@@ -187,6 +312,22 @@ export default function SettingsPage() {
         />
         <SettingRow label="Tenant ID" value={`#${user?.tenant?.id ?? '—'}`} />
       </Card>
+
+      {/* Logo — admin only */}
+      {isAdmin && (
+        <Card>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="h-9 w-9 rounded-lg bg-purple-100 flex items-center justify-center">
+              <ImagePlus className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-gray-900">Store Logo</h2>
+              <p className="text-xs text-gray-400 mt-0.5">Shown in the sidebar for all staff accounts</p>
+            </div>
+          </div>
+          <LogoUpload />
+        </Card>
+      )}
 
       {/* Account */}
       <Card>

@@ -44,7 +44,7 @@ class TransactionSeeder extends Seeder
                         'amount'      => $amount,
                         'points_earned' => $pointsEarned,
                         'notes'       => null,
-                        'purchased_at' => $date,
+                        'purchased_at' => $date->format('Y-m-d H:i:s'),
                     ]);
 
                     PointTransaction::create([

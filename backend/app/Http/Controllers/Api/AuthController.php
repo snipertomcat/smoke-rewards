@@ -22,7 +22,7 @@ class AuthController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-        $user->load('tenant:id,name,slug,settings');
+        $user->load('tenant:id,name,slug,logo_url,settings');
 
         $token = $user->createToken('api-token')->plainTextToken;
 
@@ -41,7 +41,7 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        $user = $request->user()->load('tenant:id,name,slug,settings');
+        $user = $request->user()->load('tenant:id,name,slug,logo_url,settings');
 
         return response()->json($this->serializeUser($user));
     }

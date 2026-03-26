@@ -19,12 +19,12 @@ class TenantLogoController extends Controller
 
         // Delete old logo if present
         if ($tenant->logo_url) {
-            $oldPath = str_replace('/storage/', 'public/', parse_url($tenant->logo_url, PHP_URL_PATH));
-            Storage::delete($oldPath);
+            $oldPath = ltrim(str_replace('/storage/', '', $tenant->logo_url), '/');
+            Storage::disk('public')->delete($oldPath);
         }
 
-        $path = $request->file('logo')->store("public/logos/{$tenant->id}");
-        $url  = config('app.url') . Storage::url($path);
+        $path = $request->file('logo')->store("logos/{$tenant->id}", 'public');
+        $url  = '/storage/' . $path;
 
         $tenant->update(['logo_url' => $url]);
 
@@ -36,8 +36,8 @@ class TenantLogoController extends Controller
         $tenant = $request->user()->tenant;
 
         if ($tenant->logo_url) {
-            $oldPath = str_replace('/storage/', 'public/', parse_url($tenant->logo_url, PHP_URL_PATH));
-            Storage::delete($oldPath);
+            $oldPath = ltrim(str_replace('/storage/', '', $tenant->logo_url), '/');
+            Storage::disk('public')->delete($oldPath);
             $tenant->update(['logo_url' => null]);
         }
 

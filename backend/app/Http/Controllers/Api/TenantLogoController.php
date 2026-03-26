@@ -24,7 +24,7 @@ class TenantLogoController extends Controller
         }
 
         $path = $request->file('logo')->store("logos/{$tenant->id}", 'public');
-        $url  = '/storage/' . $path;
+        $url  = Storage::disk('public')->url($path);
 
         $tenant->update(['logo_url' => $url]);
 

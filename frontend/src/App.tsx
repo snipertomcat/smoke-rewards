@@ -14,6 +14,7 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminTenantsPage from './pages/admin/AdminTenantsPage'
 import AdminCustomersPage from './pages/admin/AdminCustomersPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
+import SalesPage from './pages/SalesPage'
 import Spinner from './components/ui/Spinner'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -107,6 +108,7 @@ export default function App() {
         <Route path="customers" element={<AdminCustomersPage />} />
         <Route path="users" element={<AdminUsersPage />} />
       </Route>
+      <Route path="/salesoffer" element={<SalesPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

@@ -70,6 +70,7 @@ export default function App() {
 
   return (
     <Routes>
+      <Route path="/salesoffer" element={<SalesPage />} />        
       <Route
         path="/login"
         element={
@@ -108,7 +109,6 @@ export default function App() {
         <Route path="customers" element={<AdminCustomersPage />} />
         <Route path="users" element={<AdminUsersPage />} />
       </Route>
-      <Route path="/salesoffer" element={<SalesPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

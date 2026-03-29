@@ -50,6 +50,10 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (user.role !== 'super_admin') {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  if (window.location.pathname == "/") {
     return <Navigate to="/" replace />
   }
 
@@ -70,31 +74,41 @@ export default function App() {
 
   return (
     <Routes>
+      {/* Public homepage */}
+      <Route
+        path="/"
+        element={
+          user
+            ? user.role === 'super_admin'
+              ? <Navigate to="/admin" replace />
+              : <Navigate to="/dashboard" replace />
+            : <SalesPage />
+        }
+      />
+
+      {/* Login */}
       <Route
         path="/login"
         element={
           user
             ? user.role === 'super_admin'
               ? <Navigate to="/admin" replace />
-              : <Navigate to="/" replace />
+              : <Navigate to="/dashboard" replace />
             : <LoginPage />
         }
       />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<DashboardPage />} />
-        <Route path="customers" element={<CustomersPage />} />
-        <Route path="customers/:id" element={<CustomerDetailPage />} />
-        <Route path="transactions" element={<TransactionHistoryPage />} />
-        <Route path="staff" element={<StaffPage />} />
-        <Route path="settings" element={<SettingsPage />} />
+
+      {/* Protected app routes */}
+      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/customers" element={<CustomersPage />} />
+        <Route path="/customers/:id" element={<CustomerDetailPage />} />
+        <Route path="/transactions" element={<TransactionHistoryPage />} />
+        <Route path="/staff" element={<StaffPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
+
+      {/* Admin */}
       <Route
         path="/admin"
         element={
@@ -108,7 +122,7 @@ export default function App() {
         <Route path="customers" element={<AdminCustomersPage />} />
         <Route path="users" element={<AdminUsersPage />} />
       </Route>
-      <Route path="/salesoffer" element={<SalesPage />} />
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

@@ -111,12 +111,20 @@ export default function SalesPage() {
           <p className="text-sm text-yellow-300 font-semibold hidden sm:block">
             🔥 Limited-Time Offer — Founding Member Pricing Ends Soon
           </p>
-          <a
-            href="#get-access"
-            className="ml-auto inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-green-900 font-black text-sm px-5 py-2 rounded-lg transition-all hover:scale-105"
-          >
-            Get Instant Access <ArrowRight className="h-4 w-4" />
-          </a>
+          <div className="ml-auto flex items-center gap-3">
+            <a
+              href="/login"
+              className="text-sm text-gray-300 hover:text-white transition-colors"
+            >
+              Sign In
+            </a>
+            <a
+              href="#get-access"
+              className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-green-900 font-black text-sm px-5 py-2 rounded-lg transition-all hover:scale-105"
+            >
+              Get Instant Access <ArrowRight className="h-4 w-4" />
+            </a>
+          </div>
         </div>
       </div>
 

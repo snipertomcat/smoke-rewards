@@ -11,7 +11,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext'
 
 const navItems = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/customers', label: 'Customers', icon: Users },
   { to: '/transactions', label: 'Transaction History', icon: History },
   { to: '/staff', label: 'Staff', icon: UserCog },

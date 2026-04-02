@@ -13,7 +13,7 @@ export interface User {
   id: number
   name: string
   email: string
-  role: 'admin' | 'staff' | 'super_admin' | string
+  role: 'admin' | 'staff' | 'super_admin' | 'salesman' | string
   tenant: Tenant
 }
 
@@ -134,4 +134,14 @@ export interface AdminPurchaseTrend {
   month: string
   count: number
   revenue: string
+}
+
+export interface ShopStats {
+  total_customers: number
+  total_purchases: number
+  total_revenue: string
+  total_points_issued: number
+  total_points_outstanding: number
+  purchases_this_month: number
+  revenue_this_month: string
 }

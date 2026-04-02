@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Search, Plus, Trash2, UserCog } from 'lucide-react'
+import { Search, Plus, Trash2, UserCog, Pencil } from 'lucide-react'
 import * as adminApi from '../../api/admin'
 import type { AdminUser } from '../../api/admin'
 import Card from '../../components/ui/Card'
@@ -18,6 +18,20 @@ function formatDate(str: string) {
   })
 }
 
+function extractError(err: unknown, fallback: string): string {
+  const resp = (err as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } })?.response
+  const msg = resp?.data?.errors
+    ? Object.values(resp.data.errors).flat()[0]
+    : resp?.data?.message
+  return msg ?? fallback
+}
+
+function roleBadgeVariant(role: string): 'blue' | 'orange' | 'gray' {
+  if (role === 'admin') return 'blue'
+  if (role === 'salesman') return 'orange'
+  return 'gray'
+}
+
 // ─── Create User Modal ────────────────────────────────────────────────────────
 
 function CreateUserModal({ onClose }: { onClose: () => void }) {
@@ -26,7 +40,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [role, setRole] = useState<'admin' | 'staff'>('staff')
+  const [role, setRole] = useState<'admin' | 'staff' | 'salesman'>('staff')
   const [serverError, setServerError] = useState<string | null>(null)
 
   const { data: tenantsData } = useQuery({
@@ -34,6 +48,7 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
     queryFn: () => adminApi.listTenants({ per_page: 100 }),
   })
   const tenants = tenantsData?.data ?? []
+  const isSalesman = role === 'salesman'
 
   const mutation = useMutation({
     mutationFn: adminApi.createUser,
@@ -42,22 +57,28 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
       onClose()
     },
     onError: (err: unknown) => {
-      const resp = (err as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } })?.response
-      const msg = resp?.data?.errors
-        ? Object.values(resp.data.errors).flat()[0]
-        : resp?.data?.message
-      setServerError(msg ?? 'Failed to create user.')
+      setServerError(extractError(err, 'Failed to create user.'))
     },
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setServerError(null)
-    if (!tenantId || !name.trim() || !email.trim() || !password) {
-      setServerError('All fields are required.')
+    if (!isSalesman && !tenantId) {
+      setServerError('Please select a shop.')
       return
     }
-    mutation.mutate({ tenant_id: parseInt(tenantId), name: name.trim(), email: email.trim(), password, role })
+    if (!name.trim() || !email.trim() || !password) {
+      setServerError('Name, email and password are required.')
+      return
+    }
+    mutation.mutate({
+      tenant_id: isSalesman ? (undefined as unknown as number) : parseInt(tenantId),
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      role,
+    })
   }
 
   return (
@@ -68,39 +89,99 @@ function CreateUserModal({ onClose }: { onClose: () => void }) {
         )}
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Shop *</label>
+          <label className="text-sm font-medium text-gray-700">Role *</label>
           <select
-            value={tenantId}
-            onChange={(e) => setTenantId(e.target.value)}
+            value={role}
+            onChange={(e) => setRole(e.target.value as 'admin' | 'staff' | 'salesman')}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-            required
           >
-            <option value="" disabled>Select a shop...</option>
-            {tenants.map((t) => (
-              <option key={t.id} value={String(t.id)}>{t.name}</option>
-            ))}
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+            <option value="salesman">Salesman</option>
           </select>
         </div>
+
+        {!isSalesman && (
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">Shop *</label>
+            <select
+              value={tenantId}
+              onChange={(e) => setTenantId(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="" disabled>Select a shop...</option>
+              {tenants.map((t) => (
+                <option key={t.id} value={String(t.id)}>{t.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <Input label="Name *" placeholder="Jane Smith" value={name} onChange={(e) => setName(e.target.value)} />
         <Input label="Email *" type="email" placeholder="jane@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
         <Input label="Password *" type="password" placeholder="Min. 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">Role *</label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value as 'admin' | 'staff')}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-          >
-            <option value="staff">Staff</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" variant="primary" loading={mutation.isPending}>Create User</Button>
+        </div>
+      </form>
+    </Modal>
+  )
+}
+
+// ─── Edit User Modal ──────────────────────────────────────────────────────────
+
+function EditUserModal({ user, onClose }: { user: AdminUser; onClose: () => void }) {
+  const queryClient = useQueryClient()
+  const [name, setName] = useState(user.name)
+  const [email, setEmail] = useState(user.email)
+  const [password, setPassword] = useState('')
+  const [serverError, setServerError] = useState<string | null>(null)
+
+  const mutation = useMutation({
+    mutationFn: (data: adminApi.UpdateUserData) => adminApi.updateUser(user.id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
+      onClose()
+    },
+    onError: (err: unknown) => {
+      setServerError(extractError(err, 'Failed to update user.'))
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setServerError(null)
+    if (!name.trim() || !email.trim()) {
+      setServerError('Name and email are required.')
+      return
+    }
+    const data: adminApi.UpdateUserData = { name: name.trim(), email: email.trim() }
+    if (password) data.password = password
+    mutation.mutate(data)
+  }
+
+  return (
+    <Modal title={`Edit: ${user.name}`} onClose={onClose}>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {serverError && (
+          <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{serverError}</div>
+        )}
+
+        <Input label="Name *" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input label="Email *" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <Input
+          label="New Password"
+          type="password"
+          placeholder="Leave blank to keep current"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+
+        <div className="flex justify-end gap-3 pt-2">
+          <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button type="submit" variant="primary" loading={mutation.isPending}>Save Changes</Button>
         </div>
       </form>
     </Modal>
@@ -116,6 +197,7 @@ export default function AdminUsersPage() {
   const [filterTenantId, setFilterTenantId] = useState('')
   const [page, setPage] = useState(1)
   const [showCreate, setShowCreate] = useState(false)
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
   const perPage = 15
 
   const handleSearch = (val: string) => {
@@ -157,7 +239,6 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Users</h1>
@@ -172,7 +253,6 @@ export default function AdminUsersPage() {
       </div>
 
       <Card padding={false}>
-        {/* Filters */}
         <div className="px-4 py-3 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <Input
@@ -230,7 +310,7 @@ export default function AdminUsersPage() {
                         {user.tenant?.name ?? <span className="text-gray-400">—</span>}
                       </td>
                       <td className="px-4 py-3">
-                        <Badge variant={user.role === 'admin' ? 'blue' : 'gray'}>
+                        <Badge variant={roleBadgeVariant(user.role)}>
                           {user.role}
                         </Badge>
                       </td>
@@ -238,15 +318,25 @@ export default function AdminUsersPage() {
                         {user.created_at ? formatDate(user.created_at) : '—'}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <Button
-                          variant="danger"
-                          size="sm"
-                          onClick={() => handleDelete(user)}
-                          loading={deleteMutation.isPending && deleteMutation.variables === user.id}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Delete
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingUser(user)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => handleDelete(user)}
+                            loading={deleteMutation.isPending && deleteMutation.variables === user.id}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            Delete
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -272,6 +362,7 @@ export default function AdminUsersPage() {
       </Card>
 
       {showCreate && <CreateUserModal onClose={() => setShowCreate(false)} />}
+      {editingUser && <EditUserModal user={editingUser} onClose={() => setEditingUser(null)} />}
     </div>
   )
 }

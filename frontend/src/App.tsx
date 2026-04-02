@@ -3,6 +3,7 @@ import { useAuth } from './contexts/AuthContext'
 import { useBranding } from './hooks/useBranding'
 import Layout from './components/layout/Layout'
 import AdminLayout from './components/layout/AdminLayout'
+import SalesmanLayout from './components/layout/SalesmanLayout'
 import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import CustomersPage from './pages/CustomersPage'
@@ -14,6 +15,10 @@ import AdminDashboardPage from './pages/admin/AdminDashboardPage'
 import AdminTenantsPage from './pages/admin/AdminTenantsPage'
 import AdminCustomersPage from './pages/admin/AdminCustomersPage'
 import AdminUsersPage from './pages/admin/AdminUsersPage'
+import SalesmanDashboardPage from './pages/salesman/SalesmanDashboardPage'
+import SalesmanShopsPage from './pages/salesman/SalesmanShopsPage'
+import SalesmanShopDetailPage from './pages/salesman/SalesmanShopDetailPage'
+import SalesmanCustomersPage from './pages/salesman/SalesmanCustomersPage'
 import SalesPage from './pages/SalesPage'
 import Spinner from './components/ui/Spinner'
 
@@ -30,6 +35,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (!user) return <Navigate to="/" replace />
   if (user.role === 'super_admin') return <Navigate to="/admin" replace />
+  if (user.role === 'salesman') return <Navigate to="/salesman" replace />
 
   return <>{children}</>
 }
@@ -60,6 +66,28 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+function SalesmanRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner size="lg" />
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/" replace />
+  }
+
+  if (user.role !== 'salesman') {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  return <>{children}</>
+}
+
 export default function App() {
   const { user, isLoading } = useAuth()
   useBranding()
@@ -81,6 +109,8 @@ export default function App() {
           user
             ? user.role === 'super_admin'
               ? <Navigate to="/admin" replace />
+              : user.role === 'salesman'
+              ? <Navigate to="/salesman" replace />
               : <Navigate to="/dashboard" replace />
             : <LoginPage />
         }
@@ -93,10 +123,27 @@ export default function App() {
           user
             ? user.role === 'super_admin'
               ? <Navigate to="/admin" replace />
+              : user.role === 'salesman'
+              ? <Navigate to="/salesman" replace />
               : <Navigate to="/dashboard" replace />
             : <LoginPage />
         }
       />
+
+      {/* Salesman routes */}
+      <Route
+        path="/salesman"
+        element={
+          <SalesmanRoute>
+            <SalesmanLayout />
+          </SalesmanRoute>
+        }
+      >
+        <Route index element={<SalesmanDashboardPage />} />
+        <Route path="shops" element={<SalesmanShopsPage />} />
+        <Route path="shops/:id" element={<SalesmanShopDetailPage />} />
+        <Route path="customers" element={<SalesmanCustomersPage />} />
+      </Route>
 
       {/* Protected app routes */}
       <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>

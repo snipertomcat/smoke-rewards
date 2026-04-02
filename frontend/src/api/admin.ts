@@ -153,7 +153,13 @@ export interface CreateUserData {
   name: string
   email: string
   password: string
-  role: 'admin' | 'staff'
+  role: 'admin' | 'staff' | 'salesman'
+}
+
+export interface UpdateUserData {
+  name?: string
+  email?: string
+  password?: string
 }
 
 export async function listUsers(
@@ -165,6 +171,11 @@ export async function listUsers(
 
 export async function createUser(data: CreateUserData): Promise<User> {
   const response = await apiClient.post<{ data: User }>('/admin/users', data)
+  return response.data.data
+}
+
+export async function updateUser(id: number, data: UpdateUserData): Promise<AdminUser> {
+  const response = await apiClient.put<{ data: AdminUser }>(`/admin/users/${id}`, data)
   return response.data.data
 }
 

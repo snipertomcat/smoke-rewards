@@ -12,7 +12,11 @@ use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TenantLogoController;
 use App\Http\Controllers\Api\StaffController;
+use App\Http\Controllers\Api\Salesman\SalesmanShopController;
+use App\Http\Controllers\Api\Salesman\SalesmanStatsController;
+use App\Http\Controllers\Api\Salesman\SalesmanCustomerController;
 use App\Http\Middleware\EnsureIsAdmin;
+use App\Http\Middleware\EnsureSalesman;
 use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\EnsureTenantIsActive;
 use App\Http\Middleware\SetTenantScope;
@@ -50,7 +54,31 @@ Route::prefix('v1')->group(function () {
             // Users
             Route::get('users', [AdminUserController::class, 'index']);
             Route::post('users', [AdminUserController::class, 'store']);
+            Route::put('users/{id}', [AdminUserController::class, 'update']);
             Route::delete('users/{id}', [AdminUserController::class, 'destroy']);
+        });
+
+    // Salesman routes
+    Route::middleware(['auth:sanctum', EnsureSalesman::class])
+        ->prefix('salesman')
+        ->group(function () {
+            // Stats
+            Route::get('stats', [SalesmanStatsController::class, 'index']);
+            Route::get('stats/purchase-trend', [SalesmanStatsController::class, 'purchaseTrend']);
+            Route::get('stats/top-shops', [SalesmanStatsController::class, 'topShops']);
+
+            // Shop management
+            Route::get('shops', [SalesmanShopController::class, 'index']);
+            Route::post('shops', [SalesmanShopController::class, 'store']);
+            Route::get('shops/{id}', [SalesmanShopController::class, 'show']);
+            Route::put('shops/{id}', [SalesmanShopController::class, 'update']);
+            Route::delete('shops/{id}', [SalesmanShopController::class, 'destroy']);
+            Route::put('shops/{id}/password', [SalesmanShopController::class, 'updatePassword']);
+            Route::get('shops/{id}/stats', [SalesmanStatsController::class, 'shopStats']);
+
+            // Customers (read-only)
+            Route::get('customers', [SalesmanCustomerController::class, 'index']);
+            Route::get('customers/{id}', [SalesmanCustomerController::class, 'show']);
         });
 
     // Tenant-scoped protected routes

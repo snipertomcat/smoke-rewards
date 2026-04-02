@@ -82,7 +82,7 @@ export default function App() {
             ? user.role === 'super_admin'
               ? <Navigate to="/admin" replace />
               : <Navigate to="/dashboard" replace />
-            : <SalesPage />
+            : <Navigate to="/login" replace />
         }
       />
 

@@ -12,7 +12,8 @@
       "Bash(find /Users/jesse/Projects/smoke-rewards/frontend -type f -name *.ts* -o -name *.js* -o -name *.json)",
       "Bash(find /Users/jesse/Projects/smoke-rewards/backend -type f -name *.ts -o -name *.js -o -name *.py)",
       "Bash(find /Users/jesse/Projects/smoke-rewards/backend -type f -name *.php)",
-      "Bash(git -C /Users/jesse/Projects/smoke-rewards ls-files frontend/dist)"
+      "Bash(git -C /Users/jesse/Projects/smoke-rewards ls-files frontend/dist)",
+      "Bash(git:*)"
     ]
   }
 }

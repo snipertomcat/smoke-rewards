@@ -17,7 +17,10 @@
       "Bash(grep -E \"\\\\.\\(json|toml|yml|yaml\\)$\")",
       "Bash(find:*)",
       "Bash(composer require:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(ls /Users/jesse/Projects/smoke-rewards/frontend/.env*)",
+      "Bash(ls /Users/jesse/Projects/smoke-rewards/backend/.env*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

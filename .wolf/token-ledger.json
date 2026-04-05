@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "created_at": "2026-04-05T03:07:02.946Z",
+  "lifetime": {
+    "total_tokens_estimated": 1438,
+    "total_reads": 4,
+    "total_writes": 10,
+    "total_sessions": 1,
+    "anatomy_hits": 0,
+    "anatomy_misses": 4,
+    "repeated_reads_blocked": 0,
+    "estimated_savings_vs_bare_cli": 0
+  },
+  "sessions": [
+    {
+      "id": "session-2026-04-05-2009",
+      "started": "2026-04-05T03:09:16.104Z",
+      "ended": "2026-04-05T03:25:53.792Z",
+      "reads": [
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/backend/.env",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Badge.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Pagination.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/tsconfig.json",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Badge.tsx",
+          "tokens_estimated": 22,
+          "action": "edit"
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Badge.tsx",
+          "tokens_estimated": 25,
+          "action": "edit"
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+          "tokens_estimated": 164,
+          "action": "edit"
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+          "tokens_estimated": 161,
+          "action": "edit"
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/admin/AdminBillingPage.tsx",
+          "tokens_estimated": 164,
+          "action": "edit"
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/admin/AdminBillingPage.tsx",
+          "tokens_estimated": 161,
+          "action": "edit"
+        },
+        {
+          "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/vite-env.d.ts",
+          "tokens_estimated": 11,
+          "action": "create"
+        },
+        {
+          "file": "/Users/jesse/.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/MEMORY.md",
+          "tokens_estimated": 61,
+          "action": "create"
+        },
+        {
+          "file": "/Users/jesse/.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/project_overview.md",
+          "tokens_estimated": 248,
+          "action": "create"
+        },
+        {
+          "file": "/Users/jesse/.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/project_billing.md",
+          "tokens_estimated": 421,
+          "action": "create"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 0,
+        "output_tokens_estimated": 1438,
+        "reads_count": 4,
+        "writes_count": 10,
+        "repeated_reads_blocked": 0,
+        "anatomy_lookups": 0
+      }
+    }
+  ],
+  "daemon_usage": [],
+  "waste_flags": [],
+  "optimization_report": {
+    "last_generated": null,
+    "patterns": []
+  }
+}

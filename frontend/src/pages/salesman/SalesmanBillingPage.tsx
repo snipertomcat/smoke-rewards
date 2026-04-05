@@ -411,11 +411,15 @@ export default function SalesmanBillingPage() {
                 </table>
               </div>
               {subscriptions.meta.last_page > 1 && (
-                <div className="px-4 py-3 border-t border-gray-100">
+                <div className="border-t border-gray-100">
                   <Pagination
                     currentPage={subPage}
                     lastPage={subscriptions.meta.last_page}
-                    onPageChange={setSubPage}
+                    from={subscriptions.meta.from}
+                    to={subscriptions.meta.to}
+                    total={subscriptions.meta.total}
+                    onPrev={() => setSubPage(p => p - 1)}
+                    onNext={() => setSubPage(p => p + 1)}
                   />
                 </div>
               )}
@@ -463,11 +467,15 @@ export default function SalesmanBillingPage() {
                 </table>
               </div>
               {transactions.meta.last_page > 1 && (
-                <div className="px-4 py-3 border-t border-gray-100">
+                <div className="border-t border-gray-100">
                   <Pagination
                     currentPage={txPage}
                     lastPage={transactions.meta.last_page}
-                    onPageChange={setTxPage}
+                    from={transactions.meta.from}
+                    to={transactions.meta.to}
+                    total={transactions.meta.total}
+                    onPrev={() => setTxPage(p => p - 1)}
+                    onNext={() => setTxPage(p => p + 1)}
                   />
                 </div>
               )}

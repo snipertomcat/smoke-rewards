@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-04-05T03:24:16.531Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→13 lines (2 removed) | Also: <div className=\"px-4 py-3 border-t border-gray-100; onPageChange={setTxPage}",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-05T03:24:19.282Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-04-05T03:24:23.688Z",
+      "error_message": "Significant refactor of ",
+      "file": "frontend/src/pages/admin/AdminBillingPage.tsx",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→13 lines (2 removed) | Also: <div className=\"px-4 py-3 border-t border-gray-100; onPageChange={setTxPage}",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "tsx"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-04-05T03:24:25.682Z"
+    }
+  ]
+}

@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminBillingController;
 use App\Http\Controllers\Api\Admin\AdminCustomerController;
 use App\Http\Controllers\Api\Admin\AdminStatsController;
 use App\Http\Controllers\Api\Admin\AdminTenantController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\StripeWebhookController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\PointTransactionController;
 use App\Http\Controllers\Api\PurchaseController;
@@ -12,6 +14,7 @@ use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\SettingsController;
 use App\Http\Controllers\Api\TenantLogoController;
 use App\Http\Controllers\Api\StaffController;
+use App\Http\Controllers\Api\Salesman\SalesmanBillingController;
 use App\Http\Controllers\Api\Salesman\SalesmanShopController;
 use App\Http\Controllers\Api\Salesman\SalesmanStatsController;
 use App\Http\Controllers\Api\Salesman\SalesmanCustomerController;
@@ -23,6 +26,9 @@ use App\Http\Middleware\SetTenantScope;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
+
+    // Stripe webhooks (no auth, verified by signature)
+    Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
 
     // Public
     Route::post('/login', [AuthController::class, 'login']);
@@ -56,6 +62,11 @@ Route::prefix('v1')->group(function () {
             Route::post('users', [AdminUserController::class, 'store']);
             Route::put('users/{id}', [AdminUserController::class, 'update']);
             Route::delete('users/{id}', [AdminUserController::class, 'destroy']);
+
+            // Billing (read-only for admin)
+            Route::get('billing/stats', [AdminBillingController::class, 'stats']);
+            Route::get('billing/subscriptions', [AdminBillingController::class, 'index']);
+            Route::get('billing/transactions', [AdminBillingController::class, 'transactions']);
         });
 
     // Salesman routes
@@ -79,6 +90,15 @@ Route::prefix('v1')->group(function () {
             // Customers (read-only)
             Route::get('customers', [SalesmanCustomerController::class, 'index']);
             Route::get('customers/{id}', [SalesmanCustomerController::class, 'show']);
+
+            // Billing
+            Route::get('billing/stats', [SalesmanBillingController::class, 'stats']);
+            Route::get('billing/subscriptions', [SalesmanBillingController::class, 'index']);
+            Route::post('billing/subscriptions', [SalesmanBillingController::class, 'store']);
+            Route::get('billing/subscriptions/{id}', [SalesmanBillingController::class, 'show']);
+            Route::post('billing/subscriptions/{id}/cancel', [SalesmanBillingController::class, 'cancel']);
+            Route::post('billing/subscriptions/{id}/confirm', [SalesmanBillingController::class, 'confirmPayment']);
+            Route::get('billing/transactions', [SalesmanBillingController::class, 'transactions']);
         });
 
     // Tenant-scoped protected routes

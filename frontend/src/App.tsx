@@ -19,6 +19,8 @@ import SalesmanDashboardPage from './pages/salesman/SalesmanDashboardPage'
 import SalesmanShopsPage from './pages/salesman/SalesmanShopsPage'
 import SalesmanShopDetailPage from './pages/salesman/SalesmanShopDetailPage'
 import SalesmanCustomersPage from './pages/salesman/SalesmanCustomersPage'
+import SalesmanBillingPage from './pages/salesman/SalesmanBillingPage'
+import AdminBillingPage from './pages/admin/AdminBillingPage'
 import SalesPage from './pages/SalesPage'
 import Spinner from './components/ui/Spinner'
 
@@ -143,6 +145,7 @@ export default function App() {
         <Route path="shops" element={<SalesmanShopsPage />} />
         <Route path="shops/:id" element={<SalesmanShopDetailPage />} />
         <Route path="customers" element={<SalesmanCustomersPage />} />
+        <Route path="billing" element={<SalesmanBillingPage />} />
       </Route>
 
       {/* Protected app routes */}
@@ -168,6 +171,7 @@ export default function App() {
         <Route path="tenants" element={<AdminTenantsPage />} />
         <Route path="customers" element={<AdminCustomersPage />} />
         <Route path="users" element={<AdminUsersPage />} />
+        <Route path="billing" element={<AdminBillingPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

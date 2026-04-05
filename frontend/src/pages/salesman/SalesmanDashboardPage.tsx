@@ -4,9 +4,10 @@ import {
   Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Line, ComposedChart,
 } from 'recharts'
 import {
-  Store, Users, DollarSign, Award, ShoppingBag, TrendingUp, Plus, ArrowRight,
+  Store, Users, DollarSign, Award, ShoppingBag, TrendingUp, Plus, ArrowRight, CreditCard,
 } from 'lucide-react'
 import * as salesmanApi from '../../api/salesman'
+import * as billingApi from '../../api/billing'
 import Card from '../../components/ui/Card'
 import Button from '../../components/ui/Button'
 import Spinner from '../../components/ui/Spinner'
@@ -62,6 +63,11 @@ export default function SalesmanDashboardPage() {
   const { data: topShops, isLoading: topShopsLoading } = useQuery({
     queryKey: ['salesman', 'stats', 'top-shops'],
     queryFn: () => salesmanApi.getTopShops(10),
+  })
+
+  const { data: billingStats } = useQuery({
+    queryKey: ['salesman', 'billing', 'stats'],
+    queryFn: billingApi.getSalesmanBillingStats,
   })
 
   if (statsLoading) {
@@ -133,6 +139,28 @@ export default function SalesmanDashboardPage() {
           value={formatNumber(stats?.purchases_this_month ?? 0)}
           icon={<ShoppingBag className="h-6 w-6 text-blue-600" />}
           iconBg="bg-blue-100"
+        />
+      </div>
+
+      {/* Billing Summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <StatCard
+          title="Active Subscriptions"
+          value={String(billingStats?.active_subscriptions ?? 0)}
+          icon={<CreditCard className="h-6 w-6 text-blue-600" />}
+          iconBg="bg-blue-100"
+        />
+        <StatCard
+          title="Monthly Recurring Revenue"
+          value={formatCurrency(billingStats?.mrr ?? '0')}
+          icon={<TrendingUp className="h-6 w-6 text-emerald-600" />}
+          iconBg="bg-emerald-100"
+        />
+        <StatCard
+          title="Subscription Revenue This Month"
+          value={formatCurrency(billingStats?.revenue_this_month ?? '0')}
+          icon={<DollarSign className="h-6 w-6 text-purple-600" />}
+          iconBg="bg-purple-100"
         />
       </div>
 
@@ -214,6 +242,10 @@ export default function SalesmanDashboardPage() {
           <Button variant="secondary" onClick={() => navigate('/salesman/customers')}>
             <Users className="h-4 w-4" />
             View Customers
+          </Button>
+          <Button variant="secondary" onClick={() => navigate('/salesman/billing')}>
+            <CreditCard className="h-4 w-4" />
+            Billing
           </Button>
         </div>
       </Card>

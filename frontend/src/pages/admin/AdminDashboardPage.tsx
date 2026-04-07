@@ -18,8 +18,10 @@ import {
   ShoppingBag,
   TrendingUp,
   UserCog,
+  CreditCard,
 } from 'lucide-react'
 import * as adminApi from '../../api/admin'
+import * as billingApi from '../../api/billing'
 import Card from '../../components/ui/Card'
 import Spinner from '../../components/ui/Spinner'
 import EmptyState from '../../components/ui/EmptyState'
@@ -85,6 +87,11 @@ export default function AdminDashboardPage() {
   const { data: recentActivity, isLoading: activityLoading } = useQuery({
     queryKey: ['admin', 'stats', 'recent-activity'],
     queryFn: adminApi.getRecentActivity,
+  })
+
+  const { data: billingStats } = useQuery({
+    queryKey: ['admin', 'billing', 'stats'],
+    queryFn: billingApi.getAdminBillingStats,
   })
 
   if (statsLoading) {
@@ -156,6 +163,29 @@ export default function AdminDashboardPage() {
           value={formatNumber(stats?.total_points_issued ?? 0)}
           icon={<UserCog className="h-6 w-6 text-brand-600" />}
           iconBg="bg-brand-100"
+        />
+      </div>
+
+      {/* Billing Summary Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <StatCard
+          title="Active Subscriptions"
+          value={String(billingStats?.active_subscriptions ?? 0)}
+          subtext={`${billingStats?.total_subscriptions ?? 0} total`}
+          icon={<CreditCard className="h-6 w-6 text-blue-600" />}
+          iconBg="bg-blue-100"
+        />
+        <StatCard
+          title="Monthly Recurring Revenue"
+          value={formatCurrency(billingStats?.mrr ?? '0')}
+          icon={<TrendingUp className="h-6 w-6 text-emerald-600" />}
+          iconBg="bg-emerald-100"
+        />
+        <StatCard
+          title="Subscription Revenue This Month"
+          value={formatCurrency(billingStats?.revenue_this_month ?? '0')}
+          icon={<DollarSign className="h-6 w-6 text-purple-600" />}
+          iconBg="bg-purple-100"
         />
       </div>
 

@@ -1,0 +1,197 @@
+{
+  "session_id": "session-2026-04-05-2009",
+  "started": "2026-04-05T03:09:16.104Z",
+  "files_read": {
+    "/Users/jesse/Projects/smoke-rewards/backend/.env": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-04-05T03:23:51.829Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Badge.tsx": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-04-05T03:24:01.276Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Pagination.tsx": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-04-05T03:24:09.185Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/frontend/tsconfig.json": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-04-05T03:24:53.459Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/backend/app/Http/Middleware/EnsureSalesman.php": {
+      "count": 1,
+      "tokens": 107,
+      "first_read": "2026-04-05T03:51:36.623Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/backend/app/Models/User.php": {
+      "count": 1,
+      "tokens": 335,
+      "first_read": "2026-04-05T03:51:43.862Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/backend/app/Models/Tenant.php": {
+      "count": 1,
+      "tokens": 428,
+      "first_read": "2026-04-05T06:14:27.682Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/backend/app/Http/Controllers/Api/Salesman/SalesmanBillingController.php": {
+      "count": 3,
+      "tokens": 2526,
+      "first_read": "2026-04-05T06:16:57.552Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx": {
+      "count": 3,
+      "tokens": 6123,
+      "first_read": "2026-04-07T01:02:37.878Z"
+    }
+  },
+  "files_written": [
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Badge.tsx",
+      "action": "edit",
+      "tokens": 22,
+      "at": "2026-04-05T03:24:05.825Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/components/ui/Badge.tsx",
+      "action": "edit",
+      "tokens": 25,
+      "at": "2026-04-05T03:24:06.641Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "action": "edit",
+      "tokens": 164,
+      "at": "2026-04-05T03:24:16.530Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "action": "edit",
+      "tokens": 161,
+      "at": "2026-04-05T03:24:19.281Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/admin/AdminBillingPage.tsx",
+      "action": "edit",
+      "tokens": 164,
+      "at": "2026-04-05T03:24:23.687Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/admin/AdminBillingPage.tsx",
+      "action": "edit",
+      "tokens": 161,
+      "at": "2026-04-05T03:24:25.681Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/vite-env.d.ts",
+      "action": "create",
+      "tokens": 11,
+      "at": "2026-04-05T03:25:00.018Z"
+    },
+    {
+      "file": "/Users/jesse/.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/MEMORY.md",
+      "action": "create",
+      "tokens": 61,
+      "at": "2026-04-05T03:25:30.942Z"
+    },
+    {
+      "file": "/Users/jesse/.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/project_overview.md",
+      "action": "create",
+      "tokens": 248,
+      "at": "2026-04-05T03:25:36.785Z"
+    },
+    {
+      "file": "/Users/jesse/.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/project_billing.md",
+      "action": "create",
+      "tokens": 421,
+      "at": "2026-04-05T03:25:45.305Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/backend/app/Models/Tenant.php",
+      "action": "edit",
+      "tokens": 58,
+      "at": "2026-04-05T06:14:39.618Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/backend/app/Http/Controllers/Api/Salesman/SalesmanBillingController.php",
+      "action": "edit",
+      "tokens": 212,
+      "at": "2026-04-05T06:17:04.839Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/backend/app/Http/Controllers/Api/Salesman/SalesmanBillingController.php",
+      "action": "edit",
+      "tokens": 92,
+      "at": "2026-04-05T06:17:40.237Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/backend/app/Http/Controllers/Api/Salesman/SalesmanBillingController.php",
+      "action": "edit",
+      "tokens": 795,
+      "at": "2026-04-07T01:02:24.746Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/backend/routes/api.php",
+      "action": "edit",
+      "tokens": 55,
+      "at": "2026-04-07T01:02:29.153Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/api/billing.ts",
+      "action": "edit",
+      "tokens": 145,
+      "at": "2026-04-07T01:02:35.445Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "action": "edit",
+      "tokens": 35,
+      "at": "2026-04-07T01:02:41.502Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "action": "edit",
+      "tokens": 1844,
+      "at": "2026-04-07T01:03:10.514Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "action": "edit",
+      "tokens": 119,
+      "at": "2026-04-07T01:03:18.182Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "action": "edit",
+      "tokens": 109,
+      "at": "2026-04-07T01:03:22.392Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/frontend/src/pages/salesman/SalesmanBillingPage.tsx",
+      "action": "edit",
+      "tokens": 358,
+      "at": "2026-04-07T01:03:30.510Z"
+    }
+  ],
+  "edit_counts": {
+    "frontend/src/components/ui/Badge.tsx": 2,
+    "frontend/src/pages/salesman/SalesmanBillingPage.tsx": 7,
+    "frontend/src/pages/admin/AdminBillingPage.tsx": 2,
+    "frontend/src/vite-env.d.ts": 1,
+    "../../.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/MEMORY.md": 1,
+    "../../.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/project_overview.md": 1,
+    "../../.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/project_billing.md": 1,
+    "backend/app/Models/Tenant.php": 1,
+    "backend/app/Http/Controllers/Api/Salesman/SalesmanBillingController.php": 3,
+    "backend/routes/api.php": 1,
+    "frontend/src/api/billing.ts": 1
+  },
+  "anatomy_hits": 5,
+  "anatomy_misses": 4,
+  "repeated_reads_warned": 4,
+  "cerebrum_warnings": 0,
+  "stop_count": 6
+}

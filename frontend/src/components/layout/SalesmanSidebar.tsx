@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Store, Users, LogOut, Briefcase } from 'lucide-react'
+import { LayoutDashboard, Store, Users, LogOut, Briefcase, CreditCard } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 const navItems = [
   { to: '/salesman', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/salesman/shops', label: 'Shops', icon: Store, end: false },
   { to: '/salesman/customers', label: 'Customers', icon: Users, end: false },
+  { to: '/salesman/billing', label: 'Billing', icon: CreditCard, end: false },
 ]
 
 export default function SalesmanSidebar() {

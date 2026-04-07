@@ -6,6 +6,7 @@ import {
   UserCog,
   LogOut,
   Shield,
+  CreditCard,
 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -14,6 +15,7 @@ const navItems = [
   { to: '/admin/tenants', label: 'Shops', icon: Store, end: false },
   { to: '/admin/customers', label: 'Customers', icon: Users, end: false },
   { to: '/admin/users', label: 'Users', icon: UserCog, end: false },
+  { to: '/admin/billing', label: 'Billing', icon: CreditCard, end: false },
 ]
 
 export default function AdminSidebar() {

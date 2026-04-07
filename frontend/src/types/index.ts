@@ -145,3 +145,49 @@ export interface ShopStats {
   purchases_this_month: number
   revenue_this_month: string
 }
+
+export interface Subscription {
+  id: number
+  tenant_id: number
+  created_by: number | null
+  stripe_subscription_id: string | null
+  stripe_customer_id: string | null
+  plan_name: string
+  amount: string
+  currency: string
+  status: 'incomplete' | 'active' | 'past_due' | 'canceled' | 'trialing' | 'unpaid'
+  current_period_start: string | null
+  current_period_end: string | null
+  canceled_at: string | null
+  created_at: string
+  tenant?: { id: number; name: string; slug: string }
+  created_by_user?: { id: number; name: string }
+  transactions_count?: number
+}
+
+export interface BillingTransaction {
+  id: number
+  tenant_id: number
+  subscription_id: number | null
+  stripe_invoice_id: string | null
+  stripe_payment_intent_id: string | null
+  amount: string
+  currency: string
+  status: 'paid' | 'failed' | 'pending' | 'refunded'
+  description: string | null
+  processed_at: string | null
+  created_at: string
+  tenant?: { id: number; name: string }
+  subscription?: { id: number; plan_name: string; amount: string }
+}
+
+export interface BillingStats {
+  active_subscriptions: number
+  mrr: string
+  total_revenue: string
+  revenue_this_month: string
+  failed_this_month?: number
+  total_subscriptions?: number
+  failed_payments?: number
+  canceled_this_month?: number
+}

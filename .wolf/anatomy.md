@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-05T03:25:45.298Z
-> Files: 524 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-07T01:03:30.503Z
+> Files: 525 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/
 
@@ -61,7 +61,7 @@
 
 ## backend/app/Http/Controllers/Api/Salesman/
 
-- `SalesmanBillingController.php` — List all subscriptions for tenants, optionally filtered by tenant. (~2436 tok)
+- `SalesmanBillingController.php` — List all subscriptions for tenants, optionally filtered by tenant. (~3232 tok)
 - `SalesmanCustomerController.php` — index, show (~364 tok)
 - `SalesmanShopController.php` — index, store, show, update, destroy + 1 more (~1173 tok)
 - `SalesmanStatsController.php` — index, purchaseTrend, topShops, shopStats (~1327 tok)
@@ -104,7 +104,7 @@
 - `PointTransaction.php` — Model — 9 fields, 4 casts, 3 rels (~284 tok)
 - `Purchase.php` — Model — 7 fields, 6 casts, 4 rels (~338 tok)
 - `Subscription.php` — Model — 11 fields, 8 casts, 3 rels (~321 tok)
-- `Tenant.php` — Get the points-per-dollar setting for this tenant, (~428 tok)
+- `Tenant.php` — Get the points-per-dollar setting for this tenant, (~456 tok)
 - `User.php` — Model — 5 fields, 1 rels (~335 tok)
 
 ## backend/app/Policies/
@@ -230,7 +230,7 @@
 
 ## backend/routes/
 
-- `api.php` (~2059 tok)
+- `api.php` (~2083 tok)
 - `console.php` (~56 tok)
 - `web.php` (~29 tok)
 
@@ -869,6 +869,10 @@
 
 - `vite-env.d.ts` — / <reference types="vite/client" /> (~11 tok)
 
+## frontend/src/api/
+
+- `billing.ts` — API routes: GET (4 endpoints) (~1158 tok)
+
 ## frontend/src/components/ui/
 
 - `Badge.tsx` — variantClasses (~217 tok)
@@ -879,4 +883,4 @@
 
 ## frontend/src/pages/salesman/
 
-- `SalesmanBillingPage.tsx` — stripePromise — renders form (~6121 tok)
+- `SalesmanBillingPage.tsx` — stripePromise — renders form (~8334 tok)

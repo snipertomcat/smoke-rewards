@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { CreditCard, DollarSign, CheckCircle, XCircle, Clock, TrendingUp, AlertCircle, X, Plus } from 'lucide-react'
+import { CreditCard, DollarSign, CheckCircle, XCircle, Clock, TrendingUp, AlertCircle, X, Plus, Zap } from 'lucide-react'
 import * as billingApi from '../../api/billing'
 import * as salesmanApi from '../../api/salesman'
 import type { Subscription, BillingTransaction } from '../../types'
@@ -249,11 +249,189 @@ function NewSubscriptionForm({ onSuccess, onCancel }: NewSubscriptionFormProps) 
   )
 }
 
+// ---- One-Time Charge Form ----
+
+interface OneTimeChargeFormProps {
+  onSuccess: () => void
+  onCancel: () => void
+}
+
+function OneTimeChargeForm({ onSuccess, onCancel }: OneTimeChargeFormProps) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const queryClient = useQueryClient()
+  const [tenantId, setTenantId] = useState<number | ''>('')
+  const [description, setDescription] = useState('')
+  const [amount, setAmount] = useState('')
+  const [cardholderName, setCardholderName] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const { data: shopsPage } = useQuery({
+    queryKey: ['salesman', 'shops', 'all'],
+    queryFn: () => salesmanApi.listShops({ per_page: 100 }),
+  })
+  const shops = shopsPage?.data ?? []
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!stripe || !elements) return
+    if (!tenantId || !description || !amount) {
+      setError('Please fill in all fields.')
+      return
+    }
+
+    setError(null)
+    setLoading(true)
+
+    const cardElement = elements.getElement(CardElement)
+    if (!cardElement) {
+      setError('Card element not found.')
+      setLoading(false)
+      return
+    }
+
+    const { error: pmError, paymentMethod } = await stripe.createPaymentMethod({
+      type: 'card',
+      card: cardElement,
+      billing_details: { name: cardholderName || undefined },
+    })
+
+    if (pmError || !paymentMethod) {
+      setError(pmError?.message ?? 'Failed to process card.')
+      setLoading(false)
+      return
+    }
+
+    try {
+      const result = await billingApi.chargeOnce({
+        tenant_id: tenantId as number,
+        description,
+        amount: parseFloat(amount),
+        payment_method_id: paymentMethod.id,
+      })
+
+      if (result.client_secret) {
+        const { error: confirmError } = await stripe.confirmCardPayment(result.client_secret)
+        if (confirmError) {
+          setError(confirmError.message ?? 'Payment confirmation failed.')
+          setLoading(false)
+          return
+        }
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['salesman', 'billing'] })
+      onSuccess()
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      setError(msg ?? 'Something went wrong.')
+    } finally {
+      setLoading(false)
+    }
+  }, [stripe, elements, tenantId, description, amount, cardholderName, queryClient, onSuccess])
+
+  const cardElementOptions = {
+    style: {
+      base: {
+        fontSize: '14px',
+        color: '#111827',
+        fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+        '::placeholder': { color: '#9ca3af' },
+      },
+      invalid: { color: '#ef4444' },
+    },
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Shop</label>
+        <select
+          value={tenantId}
+          onChange={e => setTenantId(e.target.value ? Number(e.target.value) : '')}
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          required
+        >
+          <option value="">Select a shop…</option>
+          {shops.map(shop => (
+            <option key={shop.id} value={shop.id}>{shop.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <input
+          type="text"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          placeholder="e.g. Setup & Training Fee"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+          <input
+            type="number"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+            placeholder="150.00"
+            min="0.50"
+            step="0.01"
+            className="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            required
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+        <input
+          type="text"
+          value={cardholderName}
+          onChange={e => setCardholderName(e.target.value)}
+          placeholder="Name on card"
+          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Card Details</label>
+        <div className="border border-gray-300 rounded-lg px-3 py-3 focus-within:ring-2 focus-within:ring-orange-500 focus-within:border-orange-500">
+          <CardElement options={cardElementOptions} />
+        </div>
+      </div>
+
+      {error && (
+        <div className="flex items-start gap-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+          <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+          {error}
+        </div>
+      )}
+
+      <div className="flex gap-3 pt-2">
+        <Button type="submit" variant="primary" disabled={loading || !stripe} className="flex-1">
+          {loading ? <Spinner size="sm" /> : <Zap className="h-4 w-4" />}
+          {loading ? 'Processing…' : 'Charge Now'}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onCancel} disabled={loading}>
+          Cancel
+        </Button>
+      </div>
+    </form>
+  )
+}
+
 // ---- Main Page ----
 
 export default function SalesmanBillingPage() {
   const [activeTab, setActiveTab] = useState<'subscriptions' | 'transactions'>('subscriptions')
   const [showModal, setShowModal] = useState(false)
+  const [showChargeModal, setShowChargeModal] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [subPage, setSubPage] = useState(1)
   const [txPage, setTxPage] = useState(1)
@@ -288,6 +466,13 @@ export default function SalesmanBillingPage() {
     setTimeout(() => setSuccessMessage(null), 5000)
   }
 
+  const handleChargeSuccess = () => {
+    setShowChargeModal(false)
+    setActiveTab('transactions')
+    setSuccessMessage('One-time charge processed successfully.')
+    setTimeout(() => setSuccessMessage(null), 5000)
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -295,10 +480,16 @@ export default function SalesmanBillingPage() {
           <h1 className="text-2xl font-bold text-gray-900">Billing</h1>
           <p className="text-gray-500 text-sm mt-1">Manage shop subscriptions and payments</p>
         </div>
-        <Button variant="primary" onClick={() => setShowModal(true)}>
-          <Plus className="h-4 w-4" />
-          New Subscription
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setShowChargeModal(true)}>
+            <Zap className="h-4 w-4" />
+            One-Time Charge
+          </Button>
+          <Button variant="primary" onClick={() => setShowModal(true)}>
+            <Plus className="h-4 w-4" />
+            New Subscription
+          </Button>
+        </div>
       </div>
 
       {successMessage && (
@@ -502,6 +693,32 @@ export default function SalesmanBillingPage() {
                 <NewSubscriptionForm
                   onSuccess={handleSuccess}
                   onCancel={() => setShowModal(false)}
+                />
+              </Elements>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* One-Time Charge Modal */}
+      {showChargeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-orange-500" />
+                <h2 className="text-base font-semibold text-gray-900">One-Time Charge</h2>
+              </div>
+              <button onClick={() => setShowChargeModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="px-6 py-5">
+              <p className="text-sm text-gray-500 mb-4">Charge a one-time fee (setup, training, etc.) — not recurring.</p>
+              <Elements stripe={stripePromise}>
+                <OneTimeChargeForm
+                  onSuccess={handleChargeSuccess}
+                  onCancel={() => setShowChargeModal(false)}
                 />
               </Elements>
             </div>

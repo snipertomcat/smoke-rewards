@@ -98,6 +98,7 @@ Route::prefix('v1')->group(function () {
             Route::get('billing/subscriptions/{id}', [SalesmanBillingController::class, 'show']);
             Route::post('billing/subscriptions/{id}/cancel', [SalesmanBillingController::class, 'cancel']);
             Route::post('billing/subscriptions/{id}/confirm', [SalesmanBillingController::class, 'confirmPayment']);
+            Route::post('billing/charge', [SalesmanBillingController::class, 'chargeOnce']);
             Route::get('billing/transactions', [SalesmanBillingController::class, 'transactions']);
         });
 

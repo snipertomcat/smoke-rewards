@@ -77,15 +77,21 @@ class SalesmanBillingController extends Controller
             'invoice_settings' => ['default_payment_method' => $data['payment_method_id']],
         ]);
 
-        // Create subscription with inline price
+        // Create a Stripe product for this plan, then reference it in price_data
+        $product = $this->stripe->products->create([
+            'name'     => $data['plan_name'],
+            'metadata' => ['tenant_id' => $tenant->id],
+        ]);
+
+        // Create subscription using the product ID
         $stripeSubscription = $this->stripe->subscriptions->create([
             'customer' => $customer->id,
             'items'    => [[
                 'price_data' => [
-                    'currency'   => 'usd',
+                    'currency'    => 'usd',
                     'unit_amount' => (int) round($data['amount'] * 100),
-                    'recurring'  => ['interval' => 'month'],
-                    'product_data' => ['name' => $data['plan_name']],
+                    'recurring'   => ['interval' => 'month'],
+                    'product'     => $product->id,
                 ],
             ]],
             'default_payment_method' => $data['payment_method_id'],
@@ -103,8 +109,8 @@ class SalesmanBillingController extends Controller
             'plan_name'              => $data['plan_name'],
             'amount'                 => $data['amount'],
             'status'                 => $stripeSubscription->status,
-            'current_period_start'   => now()->createFromTimestamp($stripeSubscription->current_period_start),
-            'current_period_end'     => now()->createFromTimestamp($stripeSubscription->current_period_end),
+            'current_period_start'   => $stripeSubscription->current_period_start ? now()->createFromTimestamp($stripeSubscription->current_period_start) : null,
+            'current_period_end'     => $stripeSubscription->current_period_end ? now()->createFromTimestamp($stripeSubscription->current_period_end) : null,
         ]);
 
         // Create initial transaction record
@@ -194,6 +200,69 @@ class SalesmanBillingController extends Controller
         }
 
         return response()->json(['data' => $subscription->fresh(['tenant:id,name'])]);
+    }
+
+    /**
+     * Charge a one-time fee (setup, training, etc.) — not subscription-based.
+     * Expects: tenant_id, description, amount, payment_method_id
+     */
+    public function chargeOnce(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'tenant_id'         => ['required', 'integer', 'exists:tenants,id'],
+            'description'       => ['required', 'string', 'max:255'],
+            'amount'            => ['required', 'numeric', 'min:0.50'],
+            'payment_method_id' => ['required', 'string'],
+        ]);
+
+        $tenant = Tenant::findOrFail($data['tenant_id']);
+
+        // Create or retrieve Stripe customer
+        if (! $tenant->stripe_customer_id) {
+            $customer = $this->stripe->customers->create([
+                'name'     => $tenant->name,
+                'email'    => $tenant->email ?? null,
+                'metadata' => ['tenant_id' => $tenant->id],
+            ]);
+            $tenant->update(['stripe_customer_id' => $customer->id]);
+        } else {
+            $customer = $this->stripe->customers->retrieve($tenant->stripe_customer_id);
+        }
+
+        // Create and confirm a one-time PaymentIntent
+        $paymentIntent = $this->stripe->paymentIntents->create([
+            'amount'               => (int) round($data['amount'] * 100),
+            'currency'             => 'usd',
+            'customer'             => $customer->id,
+            'payment_method'       => $data['payment_method_id'],
+            'payment_method_types' => ['card'],
+            'description'          => $data['description'],
+            'confirm'              => true,
+        ]);
+
+        $status = match ($paymentIntent->status) {
+            'succeeded'        => 'paid',
+            'requires_action'  => 'pending',
+            default            => 'failed',
+        };
+
+        $transaction = BillingTransaction::create([
+            'tenant_id'               => $tenant->id,
+            'subscription_id'         => null,
+            'stripe_payment_intent_id' => $paymentIntent->id,
+            'amount'                  => $data['amount'],
+            'currency'                => 'usd',
+            'status'                  => $status,
+            'description'             => $data['description'],
+            'processed_at'            => $status === 'paid' ? now() : null,
+        ]);
+
+        return response()->json([
+            'data'          => $transaction->load('tenant:id,name'),
+            'client_secret' => $paymentIntent->status === 'requires_action'
+                ? $paymentIntent->client_secret
+                : null,
+        ], 201);
     }
 
     /**

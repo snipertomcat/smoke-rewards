@@ -67,6 +67,23 @@ export async function confirmSubscriptionPayment(id: number): Promise<Subscripti
   return r.data.data
 }
 
+export interface OneTimeChargeData {
+  tenant_id: number
+  description: string
+  amount: number
+  payment_method_id: string
+}
+
+export interface OneTimeChargeResponse {
+  data: BillingTransaction
+  client_secret: string | null
+}
+
+export async function chargeOnce(data: OneTimeChargeData): Promise<OneTimeChargeResponse> {
+  const r = await apiClient.post<OneTimeChargeResponse>('/salesman/billing/charge', data)
+  return r.data
+}
+
 export async function cancelSubscription(id: number): Promise<Subscription> {
   const r = await apiClient.post<{ data: Subscription }>(`/salesman/billing/subscriptions/${id}/cancel`)
   return r.data.data

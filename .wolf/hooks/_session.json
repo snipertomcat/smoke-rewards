@@ -46,6 +46,11 @@
       "count": 3,
       "tokens": 6123,
       "first_read": "2026-04-07T01:02:37.878Z"
+    },
+    "/Users/jesse/Projects/smoke-rewards/backend/app/Console/Commands/ResetDemoData.php": {
+      "count": 1,
+      "tokens": 0,
+      "first_read": "2026-04-07T03:24:00.305Z"
     }
   },
   "files_written": [
@@ -174,6 +179,12 @@
       "action": "edit",
       "tokens": 358,
       "at": "2026-04-07T01:03:30.510Z"
+    },
+    {
+      "file": "/Users/jesse/Projects/smoke-rewards/backend/app/Console/Commands/ResetDemoData.php",
+      "action": "create",
+      "tokens": 1010,
+      "at": "2026-04-07T03:24:12.122Z"
     }
   ],
   "edit_counts": {
@@ -187,11 +198,12 @@
     "backend/app/Models/Tenant.php": 1,
     "backend/app/Http/Controllers/Api/Salesman/SalesmanBillingController.php": 3,
     "backend/routes/api.php": 1,
-    "frontend/src/api/billing.ts": 1
+    "frontend/src/api/billing.ts": 1,
+    "backend/app/Console/Commands/ResetDemoData.php": 1
   },
   "anatomy_hits": 5,
-  "anatomy_misses": 4,
+  "anatomy_misses": 5,
   "repeated_reads_warned": 4,
   "cerebrum_warnings": 0,
-  "stop_count": 6
+  "stop_count": 7
 }

@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-04-07T01:03:30.503Z
-> Files: 525 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-04-07T03:24:12.115Z
+> Files: 526 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ../../.claude/projects/-Users-jesse-Projects-smoke-rewards/memory/
 
@@ -34,6 +34,10 @@
 - `phpunit.xml` (~378 tok)
 - `README.md` — Project documentation (~978 tok)
 - `vite.config.js` — Vite build configuration (~125 tok)
+
+## backend/app/Console/Commands/
+
+- `ResetDemoData.php` — ResetDemoData: handle (~943 tok)
 
 ## backend/app/Http/Controllers/
 

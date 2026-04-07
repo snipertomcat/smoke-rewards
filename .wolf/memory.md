@@ -34,3 +34,5 @@
 | 18:03 | Edited frontend/src/pages/salesman/SalesmanBillingPage.tsx | expanded (+6 lines) | ~109 |
 | 18:03 | Edited frontend/src/pages/salesman/SalesmanBillingPage.tsx | CSS: hover | ~358 |
 | 18:03 | Session end: 21 writes across 11 files (Badge.tsx, SalesmanBillingPage.tsx, AdminBillingPage.tsx, vite-env.d.ts, MEMORY.md) | 9 reads | ~14779 tok |
+| 20:24 | Created backend/app/Console/Commands/ResetDemoData.php | — | ~943 |
+| 20:24 | Session end: 22 writes across 12 files (Badge.tsx, SalesmanBillingPage.tsx, AdminBillingPage.tsx, vite-env.d.ts, MEMORY.md) | 10 reads | ~15789 tok |
